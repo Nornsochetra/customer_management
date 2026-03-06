@@ -7,7 +7,11 @@ import { useForm } from "react-hook-form";
 export default function LoginPage() {
 
     const router = useRouter();
-    const { handleSubmit, register, formState: { errors, isSubmitting } } = useForm();
+    const {
+        handleSubmit,
+        register,
+        formState: { errors, isSubmitting }
+    } = useForm();
 
     const onSubmit = async (data) => {
         const res = await signIn("credentials", {

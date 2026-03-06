@@ -1,7 +1,6 @@
 import {getAllCustomers} from "@/service/customer/customer_service";
 import CustomerClient from "@/app/customer/component/CustomerClientComponent";
 
-
 const CustomerPage = async () => {
     // get all customer
     const res = await getAllCustomers();

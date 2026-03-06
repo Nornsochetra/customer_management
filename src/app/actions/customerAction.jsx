@@ -12,10 +12,6 @@ export async function actionGetAllCustomers(params) {
     return await getAllCustomers(params);
 }
 
-export async function actionGetCustomerById(customerId) {
-    return await getCustomerById(customerId);
-}
-
 export async function actionCreateCustomer(customerData) {
     return await createCustomer(customerData);
 }

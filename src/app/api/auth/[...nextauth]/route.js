@@ -17,7 +17,7 @@ export const authOption = {
 
                 // login fail
                 if (userInfo?.status !== 200) {
-                    return null;
+                    throw new Error("Invalid credentials");
                 }
 
                 const loginData = userInfo.data.data;
@@ -38,10 +38,6 @@ export const authOption = {
 
     session: {
         strategy: "jwt",
-    },
-
-    pages: {
-        signIn: "/login"
     },
 
     callbacks: {

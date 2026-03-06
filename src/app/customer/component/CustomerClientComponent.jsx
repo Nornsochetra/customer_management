@@ -20,6 +20,8 @@ export default function CustomerClient({ customers }) {
     const [status, setStatus] = useState("");
 
     const [customerData, setCustomerData] = useState(customers);
+
+
     const [showCreate, setShowCreate]     = useState(false);
     const [editTarget, setEditTarget]     = useState(null);
     const [deleteTarget, setDeleteTarget] = useState(null);
