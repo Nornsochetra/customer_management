@@ -1,6 +1,6 @@
 'use client'
 
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import { useRouter } from "next/navigation";
 import CustomerCard from "@/app/customer/component/CustomerCard";
 import {
@@ -9,7 +9,8 @@ import {
     actionGetAllCustomers, actionPatchCustomer,
     actionUpdateCustomer
 } from "@/app/actions/customerAction";
-import { CreateModal, EditModal, PatchModal, DeleteModal } from "@/app/customer/component/ModalComponent";
+import { CreateModal, EditModal, DeleteModal } from "@/app/customer/component/ModalComponent";
+import {useDebounce} from "@/hooks/useDebounce";
 
 export default function CustomerClient({ customers }) {
     const router = useRouter();
@@ -21,30 +22,33 @@ export default function CustomerClient({ customers }) {
 
     const [customerData, setCustomerData] = useState(customers);
 
+    // debounce search
+    const debounceSearch = useDebounce(search, 5000);
 
     const [showCreate, setShowCreate]     = useState(false);
     const [editTarget, setEditTarget]     = useState(null);
     const [deleteTarget, setDeleteTarget] = useState(null);
 
-    const refreshData = async (params = {}) => {
-        const res = await actionGetAllCustomers({search,types,status, ...params});
+    const refreshData = useCallback(async (params = {}) => {
+        const res = await actionGetAllCustomers({ search, types, status, ...params });
         setCustomerData(res?.data?.data?.items ?? []);
-    }
+    }, [search, types, status]);
 
+    useEffect(() => {
+        refreshData({ search: debounceSearch, types, status });
+    }, [debounceSearch, types, status]);
+
+    // just update state — no API call here
     const handleSearchChange = (val) => {
-
         setSearch(val);
-        refreshData({search: val, types, status});
     };
 
     const handleTypesChange = (val) => {
         setTypes(val);
-        refreshData({ search, types: val, status });
     };
 
     const handleStatusChange = (val) => {
         setStatus(val);
-        refreshData({ search, types, status: val });
     };
 
     const handleCreate = async (form) => {
