@@ -80,7 +80,7 @@ export function CreateModal({ onClose, onCreate }) {
 }
 
 // ── Edit Modal (PUT) ───────────────────────────────────────────────────────────
-export function EditModal({ customer, onClose, onUpdate }) {
+export function EditModal({ customer, onClose, onUpdate, onPatch }) {
     const [form, setForm] = useState({
         username: customer.username ?? "",
         type: customer.types ?? "INDIVIDUAL",
@@ -93,7 +93,30 @@ export function EditModal({ customer, onClose, onUpdate }) {
 
     const handleSubmit = async () => {
         setLoading(true);
-        await onUpdate(customer.customerId, form);
+
+        // check if only phone and/or status changed
+        const onlyPhoneOrStatusChanged =
+            form.username === customer.username &&
+            form.type     === customer.types    &&
+            form.email    === customer.email;
+
+        if (onlyPhoneOrStatusChanged) {
+            // PATCH — only phone + status changed
+            await onPatch(customer.customerId, {
+                phone: form.phone,
+                status: form.status,
+            });
+        } else {
+            // PUT — other fields changed, send full body
+            await onUpdate(customer.customerId, {
+                username: form.username,
+                type: form.type,
+                email: form.email,
+                phone: form.phone,
+                status: form.status,
+            });
+        }
+
         setLoading(false);
         onClose();
     };
@@ -107,7 +130,9 @@ export function EditModal({ customer, onClose, onUpdate }) {
                         <p className="text-sm text-gray-400 mt-0.5">@{customer.username}</p>
                     </div>
                     <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 transition-colors">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
                     </button>
                 </div>
                 <div className="flex flex-col gap-4">
@@ -136,61 +161,11 @@ export function EditModal({ customer, onClose, onUpdate }) {
                     </div>
                 </div>
                 <div className="flex gap-3 mt-6">
-                    <button onClick={onClose} className="flex-1 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-sm transition-colors">Cancel</button>
+                    <button onClick={onClose} className="flex-1 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-sm transition-colors">
+                        Cancel
+                    </button>
                     <button onClick={handleSubmit} disabled={loading} className="flex-1 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 disabled:bg-violet-300 text-white font-semibold text-sm transition-colors">
                         {loading ? "Saving..." : "Save Changes"}
-                    </button>
-                </div>
-            </div>
-        </Modal>
-    );
-}
-
-// ── Patch Modal (PATCH) ────────────────────────────────────────────────────────
-export function PatchModal({ customer, onClose, onPatch }) {
-    const [form, setForm] = useState({
-        phone: customer.phone ?? "",
-        status: customer.status ?? "ACTIVE",
-    });
-    const [loading, setLoading] = useState(false);
-    const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
-
-    const handleSubmit = async () => {
-        setLoading(true);
-        await onPatch(customer.customerId, form);
-        setLoading(false);
-        onClose();
-    };
-
-    return (
-        <Modal onClose={onClose}>
-            <div className="p-8">
-                <div className="flex items-center justify-between mb-6">
-                    <div>
-                        <h2 className="text-xl font-bold text-gray-900">Quick Update</h2>
-                        <p className="text-sm text-gray-400 mt-0.5">@{customer.username}</p>
-                    </div>
-                    <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 transition-colors">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
-                <div className="flex flex-col gap-4">
-                    <Field label="Phone">
-                        <input className={inputCls} type="text" value={form.phone} onChange={e => set("phone", e.target.value)} />
-                    </Field>
-                    <Field label="Status">
-                        <select className={inputCls} value={form.status} onChange={e => set("status", e.target.value)}>
-                            <option value="ACTIVE">ACTIVE</option>
-                            <option value="INACTIVE">INACTIVE</option>
-                        </select>
-                    </Field>
-                </div>
-                <div className="flex gap-3 mt-6">
-                    <button onClick={onClose} className="flex-1 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-sm transition-colors">Cancel</button>
-                    <button onClick={handleSubmit} disabled={loading} className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white font-semibold text-sm transition-colors">
-                        {loading ? "Updating..." : "Quick Update"}
                     </button>
                 </div>
             </div>

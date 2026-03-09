@@ -29,7 +29,7 @@ function formatDate(iso) {
     if (!iso) return "—";
     return new Date(iso).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 }
-export default function CustomerCard({ customer, onView, onEdit, onDelete, onPatch }) {
+export default function CustomerCard({ customer, onView, onEdit, onDelete}) {
     return (
         <div className="bg-white rounded-2xl border border-gray-100 p-5 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col gap-4">
             <div className="flex items-start gap-3">
@@ -65,10 +65,6 @@ export default function CustomerCard({ customer, onView, onEdit, onDelete, onPat
                     <button onClick={() => onDelete(customer)}
                             className="px-2.5 py-1 rounded-lg text-xs font-semibold text-red-500 hover:bg-red-50 transition-colors">
                         Delete
-                    </button>
-                    <button onClick={() => onPatch(customer)}
-                            className="px-2.5 py-1 rounded-lg text-xs font-semibold text-blue-500 hover:bg-red-50 transition-colors">
-                        Patch
                     </button>
                 </div>
             </div>

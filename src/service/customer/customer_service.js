@@ -64,6 +64,7 @@ export const updateCustomer = async (customerId, customerData) => {
             body: JSON.stringify(customerData),
         });
         const data = await res.json();
+        console.log("update full call hz");
         return {
             status: res.status,
             data,
@@ -83,6 +84,7 @@ export const updateCustomerPhoneAndStatus = async (customerId, customerData) => 
             body: JSON.stringify(customerData),
         });
         const data = await res.json();
+        console.log("patch call hz");
         return {
             status: res.status,
             data,

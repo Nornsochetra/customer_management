@@ -25,7 +25,6 @@ export default function CustomerClient({ customers }) {
     const [showCreate, setShowCreate]     = useState(false);
     const [editTarget, setEditTarget]     = useState(null);
     const [deleteTarget, setDeleteTarget] = useState(null);
-    const [patchTarget, setPatchTarget] = useState(null);
 
     const refreshData = async (params = {}) => {
         const res = await actionGetAllCustomers({search,types,status, ...params});
@@ -54,17 +53,17 @@ export default function CustomerClient({ customers }) {
         else console.error("Created failed: ", res?.status);
     };
 
+    const handleDelete = async (id) => {
+        const res = await actionDeleteCustomer(id);
+        if(res?.status === 200) await refreshData();
+        else console.error("Deleted failed: ", res?.status);
+    };
+
     const handleUpdate = async (id, form) => {
         const res = await actionUpdateCustomer(id, form);
         console.log("res ey ke: ",res);
         if(res?.status === 200) await refreshData();
         else console.error("Updated failed: ", res?.status);
-    };
-
-    const handleDelete = async (id) => {
-        const res = await actionDeleteCustomer(id);
-        if(res?.status === 200) await refreshData();
-        else console.error("Deleted failed: ", res?.status);
     };
 
     const handlePatch = async (id, patchData) => {
@@ -149,7 +148,6 @@ export default function CustomerClient({ customers }) {
                                     onView={(id) => router.push(`/customer/${id}`)}
                                     onEdit={setEditTarget}
                                     onDelete={setDeleteTarget}
-                                    onPatch={setPatchTarget}
                                 />
                             ))
                         }
@@ -158,9 +156,8 @@ export default function CustomerClient({ customers }) {
             </div>
 
             {showCreate   && <CreateModal onClose={() => setShowCreate(false)} onCreate={handleCreate} />}
-            {editTarget   && <EditModal customer={editTarget} onClose={() => setEditTarget(null)} onUpdate={handleUpdate} />}
+            {editTarget   && <EditModal customer={editTarget} onClose={() => setEditTarget(null)} onUpdate={handleUpdate} onPatch={handlePatch} />}
             {deleteTarget && <DeleteModal customer={deleteTarget} onClose={() => setDeleteTarget(null)} onDelete={handleDelete} />}
-            {patchTarget  && <PatchModal   customer={patchTarget}  onClose={() => setPatchTarget(null)}   onPatch={handlePatch} />}
         </div>
     );
 }
