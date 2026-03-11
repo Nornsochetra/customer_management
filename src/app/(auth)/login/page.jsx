@@ -48,7 +48,7 @@ export default function LoginPage() {
                         <input
                             type="text"
                             placeholder="Enter your username"
-                            className="border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition"
+                            className="border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition placeholder:text-gray-400 text-gray-500"
                             {...register('username', { required: 'Username is required' })}
                         />
                         {errors.username && (
@@ -64,7 +64,7 @@ export default function LoginPage() {
                         <input
                             type="password"
                             placeholder="Enter your password"
-                            className="border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition"
+                            className="border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition placeholder:text-gray-400 text-gray-500"
                             {...register('password', { required: 'Password is required' })}
                         />
                         {errors.password && (

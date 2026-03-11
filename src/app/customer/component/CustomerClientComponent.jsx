@@ -37,6 +37,7 @@ export default function CustomerClient() {
         queryKey: ["customers", debounceSearch, types, status],
         queryFn: async () => {
             const res = await actionGetAllCustomers({search: debounceSearch, types, status});
+            console.log("res ey ke? : ", res);
             return res?.data?.data?.items ?? [];
         },
         staleTime: 30_000,
@@ -87,10 +88,29 @@ export default function CustomerClient() {
         {
             accessorKey: "customerId",
             header: "ID",
+            cell: ({getValue}) => (
+                <span className="font-medium text-gray-500">
+                    {getValue()}
+                </span>
+            ),
         },
         {
-            accessorKey: "name",
+            accessorKey: "username",
             header: "Name",
+            cell: ({getValue}) => (
+                <span className="font-medium text-gray-500">
+                    {getValue()}
+                </span>
+            ),
+        },
+        {
+            accessorKey: "phone",
+            header: "Phone",
+            cell: ({getValue}) => (
+                <span className="font-medium text-gray-500">
+                    {getValue()}
+                </span>
+            ),
         },
         {
             accessorKey: "types",
@@ -178,14 +198,14 @@ export default function CustomerClient() {
                             placeholder="Search..."
                             value={search}
                             onChange={e => setSearch(e.target.value)}
-                            className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent transition"
+                            className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent transition placeholder:text-gray-400"
                         />
                     </div>
                     {/*  Types filter */}
                     <select
                         value={types}
                         onChange={e => setTypes(e.target.value)}
-                        className="py-2 px-3 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-violet-400 transition"
+                        className="py-2 px-3 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-violet-400 transition text-gray-400"
                     >
                         <option value="">All Types</option>
                         <option value="INDIVIDUAL">Individual</option>
@@ -196,7 +216,7 @@ export default function CustomerClient() {
                     <select
                         value={status}
                         onChange={e => setStatus(e.target.value)}
-                        className="py-2 px-3 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-violet-400 transition"
+                        className="py-2 px-3 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-violet-400 transition text-gray-400"
                     >
                         <option value="">All Status</option>
                         <option value="ACTIVE">Active</option>
@@ -264,7 +284,7 @@ export default function CustomerClient() {
                                 <button
                                     onClick={() => table.setPageIndex(0)}
                                     disabled={!table.getCanPreviousPage()}
-                                    className="px-2 py-1 text-xs rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50"
+                                    className="px-2 py-1 text-xs rounded-lg border border-gray-400 hover:bg-gray-50 text-gray-400"
                                 >
                                     «
                                 </button>
@@ -273,7 +293,7 @@ export default function CustomerClient() {
                                 <button
                                     onClick={() => table.previousPage()}
                                     disabled={!table.getCanPreviousPage()}
-                                    className="px-3 py-1 text-xs rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50"
+                                    className="px-3 py-1 text-xs rounded-lg border border-gray-400 hover:bg-gray-50 text-gray-400"
                                 >
                                     Prev
                                 </button>
@@ -286,7 +306,7 @@ export default function CustomerClient() {
                                         className={`px-3 py-1 text-xs rounded-lg border transition-colors
                     ${table.getState().pagination.pageIndex === i
                                             ? "bg-violet-600 text-white border-violet-600"
-                                            : "border-gray-200 hover:bg-gray-50"
+                                            : "border-gray-400 hover:bg-gray-50 text-gray-400"
                                         }`}
                                     >
                                         {i + 1}
@@ -297,7 +317,7 @@ export default function CustomerClient() {
                                 <button
                                     onClick={() => table.nextPage()}
                                     disabled={!table.getCanNextPage()}
-                                    className="px-3 py-1 text-xs rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50"
+                                    className="px-3 py-1 text-xs rounded-lg border border-gray-400 hover:bg-gray-50 text-gray-400"
                                 >
                                     Next
                                 </button>
@@ -306,7 +326,7 @@ export default function CustomerClient() {
                                 <button
                                     onClick={() => table.setPageIndex(table.getPageCount() - 1)}
                                     disabled={!table.getCanNextPage()}
-                                    className="px-2 py-1 text-xs rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50"
+                                    className="px-2 py-1 text-xs rounded-lg border border-gray-400 hover:bg-gray-50 text-gray-400"
                                 >
                                     »
                                 </button>
@@ -316,7 +336,7 @@ export default function CustomerClient() {
                             <select
                                 value={table.getState().pagination.pageSize}
                                 onChange={e => table.setPageSize(Number(e.target.value))}
-                                className="text-xs border border-gray-200 rounded-lg px-2 py-1 outline-none focus:ring-2 focus:ring-violet-400"
+                                className="text-xs border border-gray-400 rounded-lg px-2 py-1 outline-none focus:ring-2 focus:ring-violet-400 text-gray-400"
                             >
                                 {[5, 10, 20, 50].map(size => (
                                     <option key={size} value={size}>Show {size}</option>
