@@ -30,6 +30,7 @@ export const authOption = {
                     username: loginData.userInfo?.username,
                     roles: loginData.userInfo?.roles,
                     accessToken: loginData?.accessToken,
+                    refreshToken: loginData?.refreshToken,
                     expiresIn: loginData?.expiresIn,
                 };
             },
@@ -44,6 +45,7 @@ export const authOption = {
         async jwt({token, user}) {
             if (user) {
                 token.accessToken = user.accessToken;
+                token.refreshToken = user.refreshToken;
                 token.expiresIn = user.expiresIn;
                 token.roles = user.roles;
                 token.username = user.username;
@@ -59,6 +61,7 @@ export const authOption = {
             };
 
             session.accessToken = token.accessToken;
+            session.refreshToken = token.refreshToken;
             session.expiresIn = token.expiresIn;
 
             return session;

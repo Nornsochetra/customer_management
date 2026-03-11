@@ -1,6 +1,6 @@
 'use client'
 
-import {useCallback, useEffect, useState} from "react";
+import {useState} from "react";
 import { useRouter } from "next/navigation";
 import CustomerCard from "@/app/customer/component/CustomerCard";
 import {
@@ -11,72 +11,75 @@ import {
 } from "@/app/actions/customerAction";
 import { CreateModal, EditModal, DeleteModal } from "@/app/customer/component/ModalComponent";
 import {useDebounce} from "@/hooks/useDebounce";
+import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 
-export default function CustomerClient({ customers }) {
+export default function CustomerClient() {
     const router = useRouter();
+    const queryClient = useQueryClient();
 
     // query state
     const [search, setSearch] = useState("");
     const [types, setTypes] = useState("");
     const [status, setStatus] = useState("");
 
-    const [customerData, setCustomerData] = useState(customers);
-
     // debounce search
-    const debounceSearch = useDebounce(search, 5000);
+    const debounceSearch = useDebounce(search, 500);
 
+    // modal state
     const [showCreate, setShowCreate]     = useState(false);
     const [editTarget, setEditTarget]     = useState(null);
     const [deleteTarget, setDeleteTarget] = useState(null);
 
-    const refreshData = useCallback(async (params = {}) => {
-        const res = await actionGetAllCustomers({ search, types, status, ...params });
-        setCustomerData(res?.data?.data?.items ?? []);
-    }, [search, types, status]);
+    const {
+        data: customerData= [],
+    } = useQuery({
+        queryKey: ["customers", debounceSearch, types, status],
+        queryFn: async () => {
+            const res = await actionGetAllCustomers({search: debounceSearch, types, status});
+            return res?.data?.data?.items ?? [];
+        },
+        staleTime: 30_000,
+    })
 
-    useEffect(() => {
-        refreshData({ search: debounceSearch, types, status });
-    }, [debounceSearch, types, status]);
+    const invalidate = () =>
+        queryClient.invalidateQueries({queryKey: ["customers"]});
 
-    // just update state — no API call here
-    const handleSearchChange = (val) => {
-        setSearch(val);
-    };
+    const createMutation = useMutation({
+        mutationFn: (form) => actionCreateCustomer(form),
+        onSuccess: (res) => {
+            if(res?.status === 201) invalidate();
+            else console.error("Created failed: ", res?.status)
+        }
+    })
 
-    const handleTypesChange = (val) => {
-        setTypes(val);
-    };
+    const deleteMutation = useMutation({
+        mutationFn: (id) => actionDeleteCustomer(id),
+        onSuccess: (res) => {
+            if (res?.status === 200) invalidate();
+            else console.error("Delete failed:", res?.status);
+        },
+    });
 
-    const handleStatusChange = (val) => {
-        setStatus(val);
-    };
+    const updateMutation = useMutation({
+        mutationFn: ({ id, form }) => actionUpdateCustomer(id, form),
+        onSuccess: (res) => {
+            if (res?.status === 200) invalidate();
+            else console.error("Update failed:", res?.status);
+        },
+    });
 
-    const handleCreate = async (form) => {
-        const res = await actionCreateCustomer(form);
-        if (res?.status === 201) await refreshData();
-        else console.error("Created failed: ", res?.status);
-    };
+    const patchMutation = useMutation({
+        mutationFn: ({ id, patchData }) => actionPatchCustomer(id, patchData),
+        onSuccess: (res) => {
+            if (res?.status === 200) invalidate();
+            else console.error("Patch failed:", res?.status);
+        },
+    });
 
-    const handleDelete = async (id) => {
-        const res = await actionDeleteCustomer(id);
-        if(res?.status === 200) await refreshData();
-        else console.error("Deleted failed: ", res?.status);
-    };
-
-    const handleUpdate = async (id, form) => {
-        const res = await actionUpdateCustomer(id, form);
-        console.log("res ey ke: ",res);
-        if(res?.status === 200) await refreshData();
-        else console.error("Updated failed: ", res?.status);
-    };
-
-    const handlePatch = async (id, patchData) => {
-        const res = await actionPatchCustomer(id, patchData);
-        if (res?.status === 200) await refreshData();
-        else console.error("Patch failed:", res?.status);
-    };
-
-    useEffect(() => { customers; }, []);
+    const handleCreate = (form) => createMutation.mutate(form);
+    const handleDelete = (id)   => deleteMutation.mutate(id);
+    const handleUpdate = (id, form)         => updateMutation.mutate({ id, form });
+    const handlePatch  = (id, patchData)    => patchMutation.mutate({ id, patchData });
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -97,14 +100,14 @@ export default function CustomerClient({ customers }) {
                             type="text"
                             placeholder="Search..."
                             value={search}
-                            onChange={e => handleSearchChange(e.target.value)}
+                            onChange={e => setSearch(e.target.value)}
                             className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent transition"
                         />
                     </div>
                     {/*  Types filter */}
                     <select
                         value={types}
-                        onChange={e => handleTypesChange(e.target.value)}
+                        onChange={e => setTypes(e.target.value)}
                         className="py-2 px-3 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-violet-400 transition"
                     >
                         <option value="">All Types</option>
@@ -115,7 +118,7 @@ export default function CustomerClient({ customers }) {
                     {/*  Status filter */}
                     <select
                         value={status}
-                        onChange={e => handleStatusChange(e.target.value)}
+                        onChange={e => setStatus(e.target.value)}
                         className="py-2 px-3 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-violet-400 transition"
                     >
                         <option value="">All Status</option>
