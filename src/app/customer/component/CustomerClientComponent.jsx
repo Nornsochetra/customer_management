@@ -24,7 +24,7 @@ export default function CustomerClient() {
     const [status, setStatus] = useState("");
 
     // debounce search
-    const debounceSearch = useDebounce(search, 500);
+    const debounceSearch = useDebounce(search, 5000);
 
     // modal state
     const [showCreate, setShowCreate]     = useState(false);
@@ -173,7 +173,7 @@ export default function CustomerClient() {
         getPaginationRowModel: getPaginationRowModel(),
         initialState: {
             pagination: {
-                pageSize: 3,
+                pageSize: 5,
             }
         }
     });
