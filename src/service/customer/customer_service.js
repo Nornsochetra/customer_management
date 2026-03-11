@@ -2,7 +2,7 @@ import {baseUrl} from "@/service/constants";
 import headerToken from "@/app/api/headerToken";
 
 // get all
-export const getAllCustomers = async ({search = "", types = "", status ="", page = 1, size = 20} ={}) => {
+export const getAllCustomers = async ({search = "", types = "", status ="", page = 1, size = 10} ={}) => {
     try {
         const header = await headerToken();
         const res = await fetch(`${baseUrl}/customers?search=${search}&types=${types}&status=${status}&page=${page}&size=${size}`,{
